@@ -35,20 +35,29 @@ DB_FILE = path.expanduser('~/.hours.db')
 
 
 def ensure_db(database):
-    database.execute("""
-        CREATE TABLE IF NOT EXISTS hours (
-            name TEXT,
-            day DATE,
-            hours REAL
-        )
-    """)
-    database.execute("""
-        CREATE INDEX IF NOT EXISTS days ON hours ( day )
-    """)
+    database.execute(
+        """
+            CREATE TABLE IF NOT EXISTS hours (
+                name TEXT,
+                day DATE,
+                hours REAL
+            )
+        """
+    )
+    database.execute(
+        """
+            CREATE INDEX IF NOT EXISTS days ON hours ( day )
+        """
+    )
 
 
 def log_hours(database, name, day, hours):
-    print('log', name, day.isoformat(), hours)
+    database.execute(
+        """
+            INSERT INTO hours (name, day, hours) VALUES (?, ?, ?)
+        """,
+        (name, day, hours)
+    )
 
 
 def do_log(database, arguments):
