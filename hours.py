@@ -42,7 +42,24 @@ def show_range(start, end):
 
 
 def do_log(arguments):
-    print('log', *arguments)
+    assert 2 <= len(arguments) <= 3
+    day = TODAY
+    name = hours = None
+
+    for argument in arguments:
+        if argument in DAYS:
+            day = DAYS[argument]
+        elif DATE_PATTERN.match(argument):
+            year, month, day = argument.split('-')
+            day = date(int(year), int(month), int(day))
+        elif HOURS_PATTERN.match(argument):
+            hours = float(argument.replace(',', '.'))
+        else:
+            name = argument
+
+    assert None not in (name, day, hours)
+
+    log_hours(name, day, hours)
 
 
 def do_show(arguments):
