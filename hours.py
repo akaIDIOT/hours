@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 from datetime import date, timedelta
+from os import path
 import re
+import sqlite3
 import sys
 
 
@@ -29,11 +31,27 @@ DAYS.update(today=TODAY,
             tomorrow=TODAY + timedelta(days=1))
 
 
-def log_hours(name, day, hours):
+DB_FILE = path.expanduser('~/.hours.db')
+
+
+def ensure_db(database):
+    database.execute("""
+        CREATE TABLE IF NOT EXISTS hours (
+            name TEXT,
+            day DATE,
+            hours REAL
+        )
+    """)
+    database.execute("""
+        CREATE INDEX IF NOT EXISTS days ON hours ( day )
+    """)
+
+
+def log_hours(database, name, day, hours):
     print('log', name, day.isoformat(), hours)
 
 
-def do_log(arguments):
+def do_log(database, arguments):
     assert 2 <= len(arguments) <= 3
     day = TODAY
     name = hours = None
@@ -51,18 +69,18 @@ def do_log(arguments):
 
     assert None not in (name, day, hours)
 
-    log_hours(name, day, hours)
+    log_hours(database, name, day, hours)
 
 
-def show_day(day):
+def show_day(database, day):
     pass
 
 
-def show_range(start, end):
+def show_range(database, start, end):
     pass
 
 
-def do_show(arguments):
+def do_show(database, arguments):
     print('show', *arguments)
 
 
@@ -76,7 +94,10 @@ def main(arguments):
     if arguments[0] in actions:
         action = arguments.pop(0)
 
-    actions[action](arguments)
+    with sqlite3.connect(DB_FILE) as database:
+        ensure_db(database)
+
+        actions[action](database, arguments)
 
 
 if __name__ == '__main__':
