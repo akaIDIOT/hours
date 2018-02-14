@@ -1,13 +1,39 @@
 #!/usr/bin/env python3
 
+from datetime import date, timedelta
+import re
 import sys
 
 
-def log_hours(name, date, hours):
-    pass
+DATE_PATTERN = re.compile(r'^\d\d\d\d-\d\d-\d\d$')
 
 
-def show_day(date):
+HOURS_PATTERN = re.compile(r'^(\d+[,.])?\d+$')
+
+
+TODAY = date.today()
+
+
+WEEK_START = TODAY - timedelta(days=TODAY.weekday())
+
+
+DAYS = {day: WEEK_START + timedelta(days=week_index) for week_index, day in enumerate(('monday',
+                                                                                       'tuesday',
+                                                                                       'wednesday',
+                                                                                       'thursday',
+                                                                                       'friday',
+                                                                                       'saturday',
+                                                                                       'sunday'))}
+DAYS.update(today=TODAY,
+            yesterday=TODAY - timedelta(days=1),
+            tomorrow=TODAY + timedelta(days=1))
+
+
+def log_hours(name, day, hours):
+    print('log', name, day.isoformat(), hours)
+
+
+def show_day(day):
     pass
 
 
