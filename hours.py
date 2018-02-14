@@ -91,15 +91,29 @@ def do_log(database, arguments):
 
 
 def show_day(database, day):
-    pass
+    print('show', day)
 
 
 def show_range(database, start, end):
-    pass
+    print('show between', start, 'and', end)
 
 
 def do_show(database, arguments):
-    print('show', *arguments)
+    assert 0 <= len(arguments) <= 2
+
+    if len(arguments) == 2:
+        start = select_day(arguments[0])
+        end = select_day(arguments[1])
+    elif len(arguments) == 1 and arguments[0] != 'week':
+        start = end = select_day(arguments[0])
+    else:
+        start = WEEK_START
+        end = WEEK_START + timedelta(days=6)
+
+    if start == end:
+        return show_day(database, start)
+    else:
+        return show_range(database, *sorted((start, end)))
 
 
 def main(arguments):
