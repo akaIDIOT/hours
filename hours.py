@@ -6,6 +6,8 @@ import re
 import sqlite3
 import sys
 
+from tabulate import tabulate
+
 
 DATE_PATTERN = re.compile(r'^\d\d\d\d-\d\d-\d\d$')
 
@@ -91,7 +93,14 @@ def do_log(database, arguments):
 
 
 def show_day(database, day):
-    print('show', day)
+    cursor = database.execute(
+        """
+            SELECT name, SUM(hours) FROM hours WHERE day = ? GROUP BY name ORDER BY name
+        """,
+        (day,)
+    )
+
+    print(tabulate(cursor.fetchall(), headers=('', day.isoformat())))
 
 
 def show_range(database, start, end):
