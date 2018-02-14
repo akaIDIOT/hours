@@ -100,11 +100,25 @@ def show_day(database, day):
         (day,)
     )
 
-    print(tabulate(cursor.fetchall(), headers=('', day.isoformat())))
+    print(tabulate(cursor.fetchall(),
+                   headers=('', day.isoformat())))
 
 
 def show_range(database, start, end):
-    print('show between', start, 'and', end)
+    days = [(start + timedelta(days=offset)).isoformat() for offset in range((end - start).days)]
+
+    cursor = database.execute(
+        """
+            SELECT name, day, SUM(hours) FROM hours WHERE day >= ? AND day <= ? GROUP BY name, day ORDER BY name, day
+        """,
+        (start, end)
+    )
+
+    data = {(name, day): hours for (name, day, hours) in cursor.fetchall()}
+    names = sorted({name for (name, day) in data.keys()})
+
+    print(tabulate([[name] + [data.get((name, day)) for day in days] for name in names],
+                   headers=[''] + days))
 
 
 def do_show(database, arguments):
