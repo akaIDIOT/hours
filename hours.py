@@ -72,6 +72,20 @@ def select_day(argument):
     raise ValueError('not a day: {}'.format(argument))
 
 
+def to_name(database, argument):
+    cursor = database.execute(
+        """
+            SELECT name FROM aliases WHERE alias = ?
+        """,
+        (argument,)
+    )
+    name = cursor.fetchone()
+    if name:
+        return name[0]
+    else:
+        return argument
+
+
 def log_hours(database, name, day, hours):
     database.execute(
         """
@@ -93,7 +107,7 @@ def do_log(database, arguments):
         elif HOURS_PATTERN.match(argument):
             hours = float(argument.replace(',', '.'))
         else:
-            name = argument
+            name = to_name(database, argument)
 
     assert None not in (name, day, hours)
 
@@ -152,7 +166,7 @@ def create_alias(database, arguments):
 
     database.execute(
         """
-            INSERT OR REPLACE INTO alias (alias, name) VALUES (?, ?)
+            INSERT OR REPLACE INTO aliases (alias, name) VALUES (?, ?)
         """,
         arguments
     )
