@@ -127,7 +127,7 @@ def show_day(database, day):
 
 
 def show_range(database, start, end):
-    days = [(start + timedelta(days=offset)).isoformat() for offset in range((end - start).days)]
+    days = [(start + timedelta(days=offset)).isoformat() for offset in range((end - start).days + 1)]
 
     cursor = database.execute(
         """
