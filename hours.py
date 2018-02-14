@@ -48,6 +48,14 @@ def ensure_db(database):
     )
     database.execute(
         """
+            CREATE TABLE IF NOT EXISTS aliases (
+                alias TEXT PRIMARY KEY,
+                name TEXT
+            )
+        """
+    )
+    database.execute(
+        """
             CREATE INDEX IF NOT EXISTS days ON hours ( day )
         """
     )
@@ -139,10 +147,22 @@ def do_show(database, arguments):
         return show_range(database, *sorted((start, end)))
 
 
+def create_alias(database, arguments):
+    assert len(arguments) == 2
+
+    database.execute(
+        """
+            INSERT OR REPLACE INTO alias (alias, name) VALUES (?, ?)
+        """,
+        arguments
+    )
+
+
 def main(arguments):
     actions = {
         'log': do_log,
         'show': do_show,
+        'alias': create_alias,
     }
 
     action = 'log'
