@@ -51,6 +51,17 @@ def ensure_db(database):
     )
 
 
+def select_day(argument):
+    if argument in DAYS:
+        return DAYS[argument]
+
+    if DATE_PATTERN.match(argument):
+        year, month, day = argument.split('-')
+        return date(int(year), int(month), int(day))
+
+    raise ValueError('not a day: {}'.format(argument))
+
+
 def log_hours(database, name, day, hours):
     database.execute(
         """
@@ -62,15 +73,13 @@ def log_hours(database, name, day, hours):
 
 def do_log(database, arguments):
     assert 2 <= len(arguments) <= 3
+
     day = TODAY
     name = hours = None
 
     for argument in arguments:
-        if argument in DAYS:
-            day = DAYS[argument]
-        elif DATE_PATTERN.match(argument):
-            year, month, day = argument.split('-')
-            day = date(int(year), int(month), int(day))
+        if argument in DAYS or DATE_PATTERN.match(argument):
+            day = select_day(argument)
         elif HOURS_PATTERN.match(argument):
             hours = float(argument.replace(',', '.'))
         else:
@@ -78,7 +87,7 @@ def do_log(database, arguments):
 
     assert None not in (name, day, hours)
 
-    log_hours(database, name, day, hours)
+    return log_hours(database, name, day, hours)
 
 
 def show_day(database, day):
