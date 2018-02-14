@@ -147,8 +147,12 @@ def do_show(database, arguments):
     assert 0 <= len(arguments) <= 2
 
     if len(arguments) == 2:
-        start = select_day(arguments[0])
-        end = select_day(arguments[1])
+        if arguments == ['last', 'week']:
+            start = WEEK_START - timedelta(days=7)
+            end = WEEK_START - timedelta(days=1)
+        else:
+            start = select_day(arguments[0])
+            end = select_day(arguments[1])
     elif len(arguments) == 1 and arguments[0] != 'week':
         start = end = select_day(arguments[0])
     else:
