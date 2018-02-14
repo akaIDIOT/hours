@@ -33,14 +33,6 @@ def log_hours(name, day, hours):
     print('log', name, day.isoformat(), hours)
 
 
-def show_day(day):
-    pass
-
-
-def show_range(start, end):
-    pass
-
-
 def do_log(arguments):
     assert 2 <= len(arguments) <= 3
     day = TODAY
@@ -60,6 +52,14 @@ def do_log(arguments):
     assert None not in (name, day, hours)
 
     log_hours(name, day, hours)
+
+
+def show_day(day):
+    pass
+
+
+def show_range(start, end):
+    pass
 
 
 def do_show(arguments):
