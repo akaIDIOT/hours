@@ -6,6 +6,7 @@ import re
 import sqlite3
 import sys
 
+import confidence
 from tabulate import tabulate
 
 
@@ -13,9 +14,6 @@ DATE_PATTERN = re.compile(r'^\d\d\d\d-\d\d-\d\d$')
 
 
 HOURS_PATTERN = re.compile(r'^(\d+[,.])?\d+$')
-
-
-DB_FILE = path.expanduser('~/.hours.db')
 
 
 def ensure_db(database):
@@ -44,8 +42,8 @@ def ensure_db(database):
 
 
 class Session:
-    def __init__(self, db_path, today=None):
-        self.db_path = db_path
+    def __init__(self, config, today=None):
+        self.config = config
         self._database = None
         self.today = today or date.today()
 
@@ -64,7 +62,7 @@ class Session:
     @property
     def database(self):
         if not self._database:
-            self._database = sqlite3.connect(self.db_path)
+            self._database = sqlite3.connect(path.expanduser(self.config.database.path or '~/.hours.db'))
 
         return self._database
 
@@ -197,4 +195,4 @@ class Session:
 
 
 if __name__ == '__main__':
-    Session(DB_FILE).run(sys.argv[1:])
+    Session(confidence.load_name('hours')).run(sys.argv[1:])
