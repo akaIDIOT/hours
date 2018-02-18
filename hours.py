@@ -133,7 +133,11 @@ class Session:
 
         cursor = self.database.execute(
             """
-                SELECT name, day, SUM(hours) FROM hours WHERE day >= ? AND day <= ? GROUP BY name, day ORDER BY name, day
+                SELECT name, day, SUM(hours) 
+                FROM hours 
+                WHERE day >= ? AND day <= ? 
+                GROUP BY name, day 
+                ORDER BY name, day
             """,
             (start, end)
         )
