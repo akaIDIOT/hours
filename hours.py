@@ -61,6 +61,20 @@ def ensure_db(database):
     )
 
 
+class Session:
+    def __init__(self, db_path, today=None):
+        self.db_path = db_path
+        self._database = None
+        self.today = today or date.today()
+
+    @property
+    def database(self):
+        if not self._database:
+            self._database = sqlite3.connect(self.db_path)
+
+        return self._database
+
+
 def select_day(argument):
     if argument in DAYS:
         return DAYS[argument]
