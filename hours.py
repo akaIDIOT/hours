@@ -68,22 +68,6 @@ class Session:
 
         return self._database
 
-    def run(self, arguments):
-        actions = {
-            'log': self.run_log,
-            'show': self.run_show,
-            'alias': self.create_alias,
-        }
-
-        action = 'log'
-        if arguments[0] in actions:
-            action = arguments.pop(0)
-
-        with self.database:
-            ensure_db(self.database)
-
-            actions[action](self.database, arguments)
-
     def select_day(self, argument):
         if argument in self.days:
             return self.days[argument]
@@ -190,6 +174,22 @@ class Session:
             """,
             arguments
         )
+
+    def run(self, arguments):
+        actions = {
+            'log': self.run_log,
+            'show': self.run_show,
+            'alias': self.create_alias,
+        }
+
+        action = 'log'
+        if arguments[0] in actions:
+            action = arguments.pop(0)
+
+        with self.database:
+            ensure_db(self.database)
+
+            actions[action](arguments)
 
 
 if __name__ == '__main__':
