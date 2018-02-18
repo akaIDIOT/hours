@@ -74,6 +74,22 @@ class Session:
 
         return self._database
 
+    def run(self, arguments):
+        actions = {
+            'log': do_log,
+            'show': do_show,
+            'alias': create_alias,
+        }
+
+        action = 'log'
+        if arguments[0] in actions:
+            action = arguments.pop(0)
+
+        with self.database:
+            ensure_db(self.database)
+
+            actions[action](self.database, arguments)
+
 
 def select_day(argument):
     if argument in DAYS:
@@ -190,22 +206,5 @@ def create_alias(database, arguments):
     )
 
 
-def main(arguments):
-    actions = {
-        'log': do_log,
-        'show': do_show,
-        'alias': create_alias,
-    }
-
-    action = 'log'
-    if arguments[0] in actions:
-        action = arguments.pop(0)
-
-    with sqlite3.connect(DB_FILE) as database:
-        ensure_db(database)
-
-        actions[action](database, arguments)
-
-
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    Session(DB_FILE).run(sys.argv[1:])
