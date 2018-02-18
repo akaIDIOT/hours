@@ -15,24 +15,6 @@ DATE_PATTERN = re.compile(r'^\d\d\d\d-\d\d-\d\d$')
 HOURS_PATTERN = re.compile(r'^(\d+[,.])?\d+$')
 
 
-TODAY = date.today()
-
-
-WEEK_START = TODAY - timedelta(days=TODAY.weekday())
-
-
-DAYS = {day: WEEK_START + timedelta(days=week_index) for week_index, day in enumerate(('monday',
-                                                                                       'tuesday',
-                                                                                       'wednesday',
-                                                                                       'thursday',
-                                                                                       'friday',
-                                                                                       'saturday',
-                                                                                       'sunday'))}
-DAYS.update(today=TODAY,
-            yesterday=TODAY - timedelta(days=1),
-            tomorrow=TODAY + timedelta(days=1))
-
-
 DB_FILE = path.expanduser('~/.hours.db')
 
 
@@ -67,6 +49,18 @@ class Session:
         self._database = None
         self.today = today or date.today()
 
+        self.week_start = self.today - timedelta(days=self.today.weekday())        
+        self.days = {day: self.week_start + timedelta(days=week_index) for week_index, day in enumerate(('monday',
+                                                                                                         'tuesday',
+                                                                                                         'wednesday',
+                                                                                                         'thursday',
+                                                                                                         'friday',
+                                                                                                         'saturday',
+                                                                                                         'sunday'))}
+        self.days.update(today=self.today,
+                         yesterday=self.today - timedelta(days=1),
+                         tomorrow=self.today + timedelta(days=1))
+
     @property
     def database(self):
         if not self._database:
@@ -91,8 +85,8 @@ class Session:
             actions[action](self.database, arguments)
 
     def select_day(self, argument):
-        if argument in DAYS:
-            return DAYS[argument]
+        if argument in self.days:
+            return self.days[argument]
 
         if DATE_PATTERN.match(argument):
             year, month, day = argument.split('-')
@@ -124,11 +118,11 @@ class Session:
     def run_log(self, arguments):
         assert 2 <= len(arguments) <= 3
 
-        day = TODAY
+        day = self.today
         name = hours = None
 
         for argument in arguments:
-            if argument in DAYS or DATE_PATTERN.match(argument):
+            if argument in self.days or DATE_PATTERN.match(argument):
                 day = self.select_day(argument)
             elif HOURS_PATTERN.match(argument):
                 hours = float(argument.replace(',', '.'))
@@ -171,16 +165,16 @@ class Session:
 
         if len(arguments) == 2:
             if arguments == ['last', 'week']:
-                start = WEEK_START - timedelta(days=7)
-                end = WEEK_START - timedelta(days=1)
+                start = self.week_start - timedelta(days=7)
+                end = self.week_start - timedelta(days=1)
             else:
                 start = self.select_day(arguments[0])
                 end = self.select_day(arguments[1])
         elif len(arguments) == 1 and arguments[0] != 'week':
             start = end = self.select_day(arguments[0])
         else:
-            start = WEEK_START
-            end = WEEK_START + timedelta(days=6)
+            start = self.week_start
+            end = self.week_start + timedelta(days=6)
 
         if start == end:
             return self.show_day(start)
