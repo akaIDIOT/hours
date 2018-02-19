@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
 from datetime import date, timedelta
+from itertools import cycle
 from os import path
 import re
 import sqlite3
 import sys
 
 import confidence
-from tabulate import tabulate
+from tabulate import _build_simple_row, DataRow, Line, TableFormat, tabulate
 
 
 DATE_PATTERN = re.compile(r'^\d\d\d\d-\d\d-\d\d$')
@@ -42,6 +43,22 @@ def ensure_db(database):
 
 
 class Session:
+    odd_even = cycle((
+        DataRow("", "  ", ""),
+        # set background to dark gray, reset background at end of line
+        DataRow("\x1b[100m", "  ", "\x1b[49m"),
+    ))
+    # TableFormat copied from tabulate's "simple" format, datarow being the exception
+    alternating_format = TableFormat(lineabove=Line("", "-", "  ", ""),
+                                     linebelowheader=Line("", "-", "  ", ""),
+                                     linebetweenrows=None,
+                                     linebelow=Line("", "-", "  ", ""),
+                                     headerrow=DataRow("", "  ", ""),
+                                     # alternate between the definitions in odd_even
+                                     datarow=lambda values, *_: _build_simple_row(values, next(Session.odd_even)),
+                                     padding=0,
+                                     with_header_hide=("lineabove", "linebelow"))
+
     def __init__(self, config, today=None):
         self.config = config
         self._database = None
@@ -124,7 +141,8 @@ class Session:
         )
 
         print(tabulate(cursor.fetchall(),
-                       headers=('', day.isoformat())))
+                       headers=('', day.isoformat()),
+                       tablefmt=self.alternating_format))
 
     def show_range(self, start, end):
         days = [(start + timedelta(days=offset)).isoformat() for offset in range((end - start).days + 1)]
@@ -144,7 +162,8 @@ class Session:
         names = sorted({name for (name, day) in data.keys()})
 
         print(tabulate([[name] + [data.get((name, day)) for day in days] for name in names],
-                       headers=[''] + days))
+                       headers=[''] + days,
+                       tablefmt=self.alternating_format))
 
     def run_show(self, arguments):
         assert 0 <= len(arguments) <= 2
