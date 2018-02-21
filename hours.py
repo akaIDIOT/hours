@@ -145,6 +145,14 @@ class Session:
                        tablefmt=self.alternating_format))
 
     def show_range(self, start, end):
+        def hilight_today(headers):
+            today = self.today.isoformat()
+            for header in headers:
+                if header == today:
+                    yield '\x1b[1m{}\x1b[21m'.format(header)
+                else:
+                    yield header
+
         days = [(start + timedelta(days=offset)).isoformat() for offset in range((end - start).days + 1)]
 
         cursor = self.database.execute(
@@ -162,7 +170,7 @@ class Session:
         names = sorted({name for (name, day) in data.keys()})
 
         print(tabulate([[name] + [data.get((name, day)) for day in days] for name in names],
-                       headers=[''] + days,
+                       headers=[''] + list(hilight_today(days)),
                        tablefmt=self.alternating_format))
 
     def run_show(self, arguments):
