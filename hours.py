@@ -194,21 +194,37 @@ class Session:
         else:
             return self.show_range(*sorted((start, end)))
 
-    def create_alias(self, arguments):
-        assert len(arguments) == 2
+    def show_aliases(self):
+        cursor = self.database.execute(
+            """
+                SELECT alias, name FROM aliases ORDER BY alias
+            """
+        )
 
+        print(tabulate(cursor.fetchall(), tablefmt=self.alternating_format))
+
+    def create_alias(self, alias, name):
         self.database.execute(
             """
                 INSERT OR REPLACE INTO aliases (alias, name) VALUES (?, ?)
             """,
-            arguments
+            (alias, name)
         )
+
+    def run_alias(self, arguments):
+        assert len(arguments) in (0, 2)
+
+        if len(arguments) == 0:
+            return self.show_aliases()
+
+        if len(arguments) == 2:
+            return self.create_alias(*arguments)
 
     def run(self, arguments):
         actions = {
             'log': self.run_log,
             'show': self.run_show,
-            'alias': self.create_alias,
+            'alias': self.run_alias,
         }
 
         action = 'log'
