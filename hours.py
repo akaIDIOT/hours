@@ -210,6 +210,13 @@ class Session:
             """,
             (alias, name)
         )
+        # apply alias to currently logged hours
+        self.database.execute(
+            """
+                UPDATE hours SET name = ? WHERE name = ?
+            """,
+            (name, alias)
+        )
 
     def run_alias(self, arguments):
         assert len(arguments) in (0, 2)
