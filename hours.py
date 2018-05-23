@@ -64,7 +64,7 @@ class Session:
         self._database = None
         self.today = today or date.today()
 
-        self.week_start = self.today - timedelta(days=self.today.weekday())        
+        self.week_start = self.today - timedelta(days=self.today.weekday())
         self.days = {day: self.week_start + timedelta(days=week_index) for week_index, day in enumerate(('monday',
                                                                                                          'tuesday',
                                                                                                          'wednesday',
@@ -234,9 +234,13 @@ class Session:
             'alias': self.run_alias,
         }
 
-        action = 'log'
-        if arguments[0] in actions:
-            action = arguments.pop(0)
+        # determine default action: no arguments at all = show, any arguments = log or explicit action
+        if arguments:
+            action = 'log'
+            if arguments[0] in actions:
+                action = arguments.pop(0)
+        else:
+            action = 'show'
 
         with self.database:
             ensure_db(self.database)
