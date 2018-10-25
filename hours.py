@@ -44,20 +44,20 @@ def ensure_db(database):
 
 class Session:
     odd_even = cycle((
-        DataRow("", "  ", ""),
+        DataRow('', '  ', ''),
         # set background to dark gray, reset background at end of line
-        DataRow("\x1b[100m", "  ", "\x1b[49m"),
+        DataRow('\x1b[100m', '  ', '\x1b[49m'),
     ))
-    # TableFormat copied from tabulate's "simple" format, datarow being the exception
-    alternating_format = TableFormat(lineabove=Line("", "-", "  ", ""),
-                                     linebelowheader=Line("", "-", "  ", ""),
+    # TableFormat copied from tabulate's 'simple' format, datarow being the exception
+    alternating_format = TableFormat(lineabove=Line('', '-', '  ', ''),
+                                     linebelowheader=Line('', '-', '  ', ''),
                                      linebetweenrows=None,
-                                     linebelow=Line("", "-", "  ", ""),
-                                     headerrow=DataRow("", "  ", ""),
+                                     linebelow=Line('', '-', '  ', ''),
+                                     headerrow=DataRow('', '  ', ''),
                                      # alternate between the definitions in odd_even
                                      datarow=lambda values, *_: _build_simple_row(values, next(Session.odd_even)),
                                      padding=0,
-                                     with_header_hide=("lineabove", "linebelow"))
+                                     with_header_hide=('lineabove', 'linebelow'))
 
     def __init__(self, config, today=None):
         self.config = config
