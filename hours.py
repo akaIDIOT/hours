@@ -14,7 +14,7 @@ from tabulate import _build_simple_row, DataRow, Line, TableFormat, tabulate
 DATE_PATTERN = re.compile(r'^\d\d\d\d-\d\d-\d\d$')
 
 
-HOURS_PATTERN = re.compile(r'^(\d+[,.])?\d+$')
+HOURS_PATTERN = re.compile(r'^(\d*[,.])?\d+$')
 
 
 def ensure_db(database):
